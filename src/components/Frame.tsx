@@ -7,29 +7,82 @@ import sdk, {
   type Context,
 } from "@farcaster/frame-sdk";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "~/components/ui/card";
-
+import { Button } from "~/components/ui/button";
 import { config } from "~/components/providers/WagmiProvider";
 import { PurpleButton } from "~/components/ui/PurpleButton";
 import { truncateAddress } from "~/lib/truncateAddress";
-import { base, optimism } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { useSession } from "next-auth/react";
 import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
-import { PROJECT_TITLE } from "~/lib/constants";
+import { PROJECT_TITLE, YOINK_CONTRACT_ADDRESS } from "~/lib/constants";
+import { useContractWrite, useContractRead } from "wagmi";
+import { YOINK_ABI } from "~/lib/yoink-abi";
 
-function ExampleCard() {
+function YoinkCard({ context }: { context: Context.FrameContext }) {
+  const { data: lastYoinkedBy } = useContractRead({
+    address: YOINK_CONTRACT_ADDRESS,
+    abi: YOINK_ABI,
+    functionName: "lastYoinkedBy",
+  });
+
+  const { data: score } = useContractRead({
+    address: YOINK_CONTRACT_ADDRESS,
+    abi: YOINK_ABI,
+    functionName: "score",
+    args: [lastYoinkedBy],
+  });
+
+  const { write: yoink, isLoading: isYoinking } = useContractWrite({
+    address: YOINK_CONTRACT_ADDRESS,
+    abi: YOINK_ABI,
+    functionName: "yoink",
+  });
+
+  const handleYoink = () => {
+    if (context?.client.address === lastYoinkedBy) {
+      alert("You already have the flag!");
+      return;
+    }
+    yoink();
+  };
+
   return (
     <Card className="border-neutral-200 bg-white">
       <CardHeader>
-        <CardTitle className="text-neutral-900">Welcome to the Frame Template</CardTitle>
+        <CardTitle className="text-neutral-900">🚩 YoinkQuest 🚩</CardTitle>
         <CardDescription className="text-neutral-600">
-          This is an example card that you can customize or remove
+          Click to yoink the flag!
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-neutral-800">
-        <p>
-          Your frame content goes here. The text is intentionally dark to ensure good readability.
-        </p>
+      <CardContent className="text-neutral-800 flex flex-col gap-4">
+        {lastYoinkedBy && (
+          <div>
+            <Label>Current Holder:</Label>
+            <div className="font-mono">{truncateAddress(lastYoinkedBy)}</div>
+          </div>
+        )}
+        
+        {score && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Yoinks:</Label>
+              <div>{score.yoinks.toString()}</div>
+            </div>
+            <div>
+              <Label>Time Held:</Label>
+              <div>{score.time.toString()}s</div>
+            </div>
+          </div>
+        )}
+
+        <Button 
+          onClick={handleYoink}
+          disabled={isYoinking}
+          className="w-full"
+        >
+          {isYoinking ? "Yoinking..." : "Yoink the Flag!"}
+        </Button>
       </CardContent>
     </Card>
   );
@@ -137,7 +190,7 @@ export default function Frame(
     >
       <div className="w-[300px] mx-auto py-2 px-2">
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
-        <ExampleCard />
+        {context && <YoinkCard context={context} />}
       </div>
     </div>
   );
