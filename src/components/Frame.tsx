@@ -30,7 +30,8 @@ function YoinkCard({ context }: { context: Context.FrameContext }) {
     address: YOINK_CONTRACT_ADDRESS,
     abi: YOINK_ABI,
     functionName: "score",
-    args: [lastYoinkedBy],
+    args: [lastYoinkedBy || "0x0000000000000000000000000000000000000000"],
+    enabled: !!lastYoinkedBy, // Only run if we have an address
   });
 
   const { write: yoink, isLoading: isYoinking } = useContractWrite({
