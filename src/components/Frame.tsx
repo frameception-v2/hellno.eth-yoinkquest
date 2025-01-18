@@ -16,10 +16,11 @@ import { useSession } from "next-auth/react";
 import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE, YOINK_CONTRACT_ADDRESS } from "~/lib/constants";
-import { useContractWrite, useContractRead } from "wagmi";
+import { useAccount, useContractWrite, useContractRead } from "wagmi";
 import { YOINK_ABI } from "~/lib/yoink-abi";
 
-function YoinkCard({ context }: { context: Context.FrameContext }) {
+function YoinkCard() {
+  const { address } = useAccount();
   const { data: lastYoinkedBy } = useContractRead({
     address: YOINK_CONTRACT_ADDRESS,
     abi: YOINK_ABI,
@@ -39,7 +40,7 @@ function YoinkCard({ context }: { context: Context.FrameContext }) {
   const { writeContract, isPending: isYoinking } = useContractWrite();
 
   const handleYoink = () => {
-    if (context?.client.connectedAddress === lastYoinkedBy) {
+    if (address === lastYoinkedBy) {
       alert("You already have the flag!");
       return;
     }
@@ -193,7 +194,7 @@ export default function Frame(
     >
       <div className="w-[300px] mx-auto py-2 px-2">
         <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
-        {context && <YoinkCard context={context} />}
+        <YoinkCard />
       </div>
     </div>
   );
