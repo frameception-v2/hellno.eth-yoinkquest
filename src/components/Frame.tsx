@@ -36,14 +36,14 @@ function YoinkCard({ context }: { context: Context.FrameContext }) {
     }
   });
 
-  const { writeContract: yoink, isPending: isYoinking } = useContractWrite();
+  const { writeContract, isPending: isYoinking } = useContractWrite();
 
   const handleYoink = () => {
-    if (context?.client.address === lastYoinkedBy) {
+    if (context?.client.connectedAddress === lastYoinkedBy) {
       alert("You already have the flag!");
       return;
     }
-    yoink({
+    writeContract({
       address: YOINK_CONTRACT_ADDRESS,
       abi: YOINK_ABI,
       functionName: "yoink",
