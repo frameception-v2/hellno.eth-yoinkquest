@@ -59,23 +59,25 @@ function YoinkCard() {
           Click to yoink the flag!
         </CardDescription>
       </CardHeader>
-      <CardContent className="text-neutral-800 flex flex-col gap-4">
+      <CardContent className="text-neutral-800 flex flex-col gap-6">
         {lastYoinkedBy && (
-          <div>
-            <Label>Current Holder:</Label>
-            <div className="font-mono">{truncateAddress(lastYoinkedBy)}</div>
+          <div className="space-y-2">
+            <Label className="text-lg">Current Holder:</Label>
+            <div className="font-mono text-sm break-all px-2 py-1 bg-neutral-100 rounded">
+              {truncateAddress(lastYoinkedBy)}
+            </div>
           </div>
         )}
         
         {score && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Yoinks:</Label>
-              <div>{score.yoinks.toString()}</div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-lg">Yoinks:</Label>
+              <div className="text-2xl font-bold">{score.yoinks.toString()}</div>
             </div>
-            <div>
-              <Label>Time Held:</Label>
-              <div>{score.time.toString()}s</div>
+            <div className="space-y-2">
+              <Label className="text-lg">Time Held:</Label>
+              <div className="text-2xl font-bold">{score.time.toString()}s</div>
             </div>
           </div>
         )}
@@ -83,7 +85,7 @@ function YoinkCard() {
         <Button 
           onClick={handleYoink}
           disabled={isYoinking}
-          className="w-full"
+          className="w-full py-6 text-xl"
         >
           {isYoinking ? "Yoinking..." : "Yoink the Flag!"}
         </Button>
@@ -192,8 +194,8 @@ export default function Frame(
         paddingRight: context?.client.safeAreaInsets?.right ?? 0,
       }}
     >
-      <div className="w-[300px] mx-auto py-2 px-2">
-        <h1 className="text-2xl font-bold text-center mb-4 text-neutral-900">{title}</h1>
+      <div className="w-full max-w-[400px] mx-auto py-4 px-4">
+        <h1 className="text-3xl font-bold text-center mb-6 text-neutral-900">{title}</h1>
         <YoinkCard />
       </div>
     </div>
